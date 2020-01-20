@@ -1,0 +1,23 @@
+{{- if .Values.pushgateway.enabled }}
+apiVersion: {{ printf "%s/v1" (.Values.prometheusOperator.crdApiGroup | default "monitoring.coreos.com") }}
+kind: ServiceMonitor
+metadata:
+  name: {{ template "prometheus-operator.fullname" . }}-pushgateway
+  labels:
+    app: {{ template "prometheus-operator.name" . }}-pushgateway
+{{ include "prometheus-operator.labels" . | indent 4 }}
+spec:
+  jobLabel: jobLabel
+  selector:
+    matchLabels:
+      app: prometheus-pushgateway
+  namespaceSelector:
+    matchNames:
+      - "monitoring"
+  endpoints:
+  - port: pushgateway
+    interval: 30s
+    honorLabels: true
+    path: /metrics
+    scheme: http
+{{- end }}
